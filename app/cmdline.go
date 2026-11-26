@@ -109,6 +109,10 @@ type prompt struct {
 	pick  func(text string) []string
 	aside func(item string) string
 
+	// browse, when set, is what Ctrl-O does with the text: look for the
+	// file in the browser instead of typing it.
+	browse func(text string)
+
 	onChange func(text string)
 	onSubmit func(text string)
 	onCancel func()
@@ -188,10 +192,17 @@ func (c *cmdline) key(ev *tcell.EventKey) bool {
 		}
 
 		return true
-	case tcell.KeyTab, tcell.KeyDown:
+	case tcell.KeyCtrlO:
+		if p.browse != nil {
+			c.prompt = nil
+			p.browse(p.edit.String())
+		}
+
+		return true
+	case tcell.KeyTab, tcell.KeyDown, tcell.KeyCtrlN:
 		c.cycle(1)
 		return true
-	case tcell.KeyBacktab, tcell.KeyUp:
+	case tcell.KeyBacktab, tcell.KeyUp, tcell.KeyCtrlP:
 		c.cycle(-1)
 		return true
 	case tcell.KeyBackspace, tcell.KeyBackspace2:

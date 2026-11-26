@@ -54,6 +54,10 @@ func (h *helpView) key(ev *tcell.EventKey) bool {
 		h.scroll(1)
 	case tcell.KeyUp:
 		h.scroll(-1)
+	case tcell.KeyCtrlD:
+		h.scroll(h.rows / 2)
+	case tcell.KeyCtrlU:
+		h.scroll(-h.rows / 2)
 	case tcell.KeyPgDn:
 		h.scroll(h.rows)
 	case tcell.KeyPgUp:
@@ -66,6 +70,12 @@ func (h *helpView) key(ev *tcell.EventKey) bool {
 		switch ev.Rune() {
 		case 'q', '?':
 			return true
+		case 'j':
+			h.scroll(1)
+		case 'k':
+			h.scroll(-1)
+		case 'G':
+			h.scroll(1 << 20)
 		}
 	}
 

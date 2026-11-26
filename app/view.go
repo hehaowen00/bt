@@ -22,8 +22,13 @@ func (a *App) draw() {
 	}
 	cv.fill(stNormal)
 
-	if a.help != nil {
-		a.help.draw(cv.sub(0, 0, w, h-1))
+	if a.browse != nil || a.help != nil {
+		if a.browse != nil {
+			a.browse.draw(cv.sub(0, 0, w, h-1))
+		} else {
+			a.help.draw(cv.sub(0, 0, w, h-1))
+		}
+
 		a.drawStatus(cv, h-2)
 		a.cmd.draw(cv, h-1)
 		a.s.Show()

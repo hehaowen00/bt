@@ -16,6 +16,7 @@ const (
 	strPeers      = "Peers"
 	strTrackers   = "Trackers"
 	strHelp       = "Help"
+	strBrowse     = "Open Torrent"
 	strNoTorrents = "No Torrents"
 	strNoMatches  = "No Matches"
 	strNoFiles    = "Metadata Not Yet Received"
@@ -26,23 +27,26 @@ const (
 
 // List columns.
 const (
-	colName   = "Name"
-	colSize   = "Size"
-	colDone   = "Done"
-	colStatus = "Status"
-	colDown   = "Down"
-	colUp     = "Up"
-	colPeers  = "Peers"
-	colETA    = "ETA"
-	colAddr   = "Address"
-	colClient = "Client"
-	colFlags  = "Flags"
-	colTier   = "Tier"
-	colURL    = "URL"
-	colSeeds  = "Seeds"
-	colLeech  = "Leechers"
-	colNext   = "Next"
-	colPath   = "Path"
+	colName     = "Name"
+	colSize     = "Size"
+	colDone     = "Done"
+	colStatus   = "Status"
+	colDown     = "Down"
+	colUp       = "Up"
+	colPeers    = "Peers"
+	colETA      = "ETA"
+	colAddr     = "Address"
+	colClient   = "Client"
+	colFlags    = "Flags"
+	colTier     = "Tier"
+	colURL      = "URL"
+	colSeeds    = "Seeds"
+	colLeech    = "Leechers"
+	colNext     = "Next"
+	colPath     = "Path"
+	colCreated  = "Created"
+	colModified = "Modified"
+	colMode     = "Mode"
 )
 
 // General tab labels.
@@ -82,42 +86,45 @@ const (
 
 // Prompts and messages.
 const (
-	promptCommand  = "Command: "
-	promptAdd      = "Add (file or magnet): "
-	promptSearch   = "Filter: "
-	promptRemove   = "Remove %s? (y/n)"
-	promptDelete   = "Remove %s and delete its files? (y/n)"
-	promptSaveIn   = "Save in: "
-	promptMakeFrom = "New torrent from: "
-	promptTrackers = "Trackers: "
-	promptPrivate  = "Private? (y/n)"
-	promptSaveAs   = "Save as: "
-	promptReplace  = "Replace %s? (y/n)"
-	msgAdded       = "Added %s"
-	msgRemoved     = "Removed %s"
-	msgDeleted     = "Removed %s and deleted its files"
-	msgPaused      = "Paused %s"
-	msgResumed     = "Resumed %s"
-	msgRechecking  = "Checking %s"
-	msgCopied      = "Copied the magnet link"
-	msgCopiedHash  = "Copied the info hash"
-	msgCopiedPath  = "Copied the path"
-	msgFinished    = "%s: %s"
-	msgWanted      = "%d files will download"
-	msgSkipped     = "%d files skipped"
-	msgTheme       = "Theme %s"
-	msgHashing     = "Hashing %s: %d%%"
-	msgMade        = "Made %s and seeding it"
-	errMaking      = "A torrent is already being made"
-	errTracker     = "%s is not a tracker URL"
-	errNoTorrent   = "No torrent selected"
-	errNotFilesTab = "Files can be chosen in the Files tab"
+	promptCommand   = "Command: "
+	promptAdd       = "Add (file or magnet): "
+	promptSearch    = "Filter: "
+	promptRemove    = "Remove %s? (y/n)"
+	promptDelete    = "Remove %s and delete its files? (y/n)"
+	promptSaveIn    = "Save in: "
+	promptMakeFrom  = "New torrent from: "
+	promptTrackers  = "Trackers: "
+	promptPrivate   = "Private? (y/n)"
+	promptSaveAs    = "Save as: "
+	promptReplace   = "Replace %s? (y/n)"
+	msgAdded        = "Added %s"
+	msgRemoved      = "Removed %s"
+	msgDeleted      = "Removed %s and deleted its files"
+	msgPaused       = "Paused %s"
+	msgResumed      = "Resumed %s"
+	msgRechecking   = "Checking %s"
+	msgCopied       = "Copied the magnet link"
+	msgCopiedHash   = "Copied the info hash"
+	msgCopiedPath   = "Copied the path"
+	msgFinished     = "%s: %s"
+	msgWanted       = "%d files will download"
+	msgSkipped      = "%d files skipped"
+	msgTheme        = "Theme %s"
+	msgHashing      = "Hashing %s: %d%%"
+	msgMade         = "Made %s and seeding it"
+	errMaking       = "A torrent is already being made"
+	errTracker      = "%s is not a tracker URL"
+	errNoTorrent    = "No torrent selected"
+	errNotFilesTab  = "Files can be chosen in the Files tab"
+	msgHiddenShown  = "Hidden files shown"
+	msgHiddenHidden = "Hidden files hidden"
 )
 
 // Command palette entries.
 const (
 	cmdAdd        = "Add Torrent"
 	cmdAddTo      = "Add Torrent to Folder"
+	cmdBrowse     = "Open Torrent File"
 	cmdMake       = "New Torrent"
 	cmdPause      = "Pause or Resume"
 	cmdRecheck    = "Check Files Again"
@@ -138,6 +145,7 @@ const (
 	helpMoving   = "Moving"
 	helpTorrents = "Torrents"
 	helpFiles    = "Files"
+	helpBrowsing = "Open Torrent"
 	helpFinding  = "Finding"
 	helpCommands = "Commands"
 	helpLeaving  = "Leaving"
@@ -157,19 +165,27 @@ var helpSections = []helpSection{
 		helpMoving,
 		[]helpKey{
 			{
-				"↓ ↑",
+				"j k  ↓ ↑",
 				"Move",
 			},
 			{
-				"PgDn PgUp  Home End",
-				"Move a screen, or to the first or last row",
+				"gg G  Home End",
+				"The first or last row",
+			},
+			{
+				"PgDn PgUp",
+				"Move a screen",
+			},
+			{
+				"Ctrl-D Ctrl-U",
+				"Move half a screen",
 			},
 			{
 				"Tab  Enter  Esc",
 				"Move between the list and the detail pane",
 			},
 			{
-				"← →  1 2 3 4",
+				"h l  ← →  1 2 3 4",
 				"General, Files, Peers or Trackers tab",
 			},
 			{
@@ -190,6 +206,14 @@ var helpSections = []helpSection{
 				"Add, choosing the folder to save in",
 			},
 			{
+				"o",
+				"Browse for a .torrent file and add it",
+			},
+			{
+				"Ctrl-O",
+				"In the add prompt: browse for the file",
+			},
+			{
 				"n",
 				"Make a torrent from a file or folder",
 			},
@@ -206,7 +230,7 @@ var helpSections = []helpSection{
 				"Check the files on disk again",
 			},
 			{
-				"Delete",
+				"dd  Delete",
 				"Remove the torrent, keeping its files",
 			},
 			{
@@ -214,7 +238,7 @@ var helpSections = []helpSection{
 				"Remove the torrent and delete its files",
 			},
 			{
-				"c",
+				"yy  c",
 				"Copy the magnet link",
 			},
 		},
@@ -233,6 +257,27 @@ var helpSections = []helpSection{
 		},
 	},
 	{
+		helpBrowsing,
+		[]helpKey{
+			{
+				"Enter  l  →",
+				"Open the folder, or add the .torrent file",
+			},
+			{
+				"-  h  ←  Backspace",
+				"The folder above",
+			},
+			{
+				"I",
+				"Show or hide hidden files",
+			},
+			{
+				"Esc  q",
+				"Close the browser",
+			},
+		},
+	},
+	{
 		helpFinding,
 		[]helpKey{
 			{
@@ -245,7 +290,7 @@ var helpSections = []helpSection{
 		helpCommands,
 		[]helpKey{
 			{
-				"Ctrl-P",
+				":  Ctrl-P",
 				"Every command, found by typing part of its name",
 			},
 			{

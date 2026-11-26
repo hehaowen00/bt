@@ -12,10 +12,12 @@ import (
 	"strings"
 	"sync/atomic"
 	"syscall"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 
 	"bt/app"
+	"bt/terminal"
 	"bt/torrent"
 )
 
@@ -173,6 +175,13 @@ func main() {
 			}
 		},
 	})
+
+	// before tcell takes the keyboard: the answer arrives on the input
+	// stream it reads
+	colours := terminal.Detect(250 * time.Millisecond)
+	if colours != nil {
+		app.UseTerminalColors(colours)
+	}
 
 	screen, err := tcell.NewScreen()
 	if err == nil {

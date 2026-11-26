@@ -51,8 +51,13 @@ type App struct {
 	dsel   [numTabs]int
 	dtop   [numTabs]int
 
-	cmd  cmdline
-	help *helpView
+	cmd     cmdline
+	help    *helpView
+	pending rune // the first key of a two-key command: g, d or y
+
+	browse       *browser
+	browseDir    string // where browsing last was, where the next starts
+	browseHidden bool
 
 	// where things were drawn, for the mouse and for page moves
 	listY, listRows     int
@@ -323,7 +328,7 @@ func (a *App) pasteEvent(ev *tcell.EventPaste) {
 	a.pasting = false
 	text := a.pasteBuf.String()
 
-	if a.cmd.prompt == nil && a.help == nil {
+	if a.cmd.prompt == nil && a.help == nil && a.browse == nil {
 		a.askAdd("")
 	}
 
@@ -344,6 +349,11 @@ func (a *App) mouse(ev *tcell.EventMouse) {
 	pressed := btn&tcell.Button1 != 0 && a.buttons&tcell.Button1 == 0
 	a.buttons = btn
 	x, y := ev.Position()
+
+	if a.browse != nil {
+		a.browseMouse(btn, pressed, y)
+		return
+	}
 
 	if a.help != nil {
 		switch {

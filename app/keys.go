@@ -9,7 +9,17 @@ import (
 )
 
 func (a *App) key(ev *tcell.EventKey) {
+	if ev.Key() == tcell.KeyCtrlQ {
+		a.quit = true
+		return
+	}
+
 	if a.cmd.key(ev) {
+		return
+	}
+
+	if a.browse != nil {
+		a.browseKey(ev)
 		return
 	}
 
@@ -21,8 +31,19 @@ func (a *App) key(ev *tcell.EventKey) {
 		return
 	}
 
+	if a.pending != 0 {
+		p := a.pending
+		a.pending = 0
+
+		if ev.Key() == tcell.KeyRune {
+			a.chord(p, ev.Rune())
+		}
+
+		return
+	}
+
 	switch ev.Key() {
-	case tcell.KeyCtrlC, tcell.KeyCtrlQ:
+	case tcell.KeyCtrlC:
 		a.quit = true
 	case tcell.KeyDown:
 		a.move(1)
@@ -32,14 +53,18 @@ func (a *App) key(ev *tcell.EventKey) {
 		a.move(a.pageRows())
 	case tcell.KeyPgUp:
 		a.move(-a.pageRows())
+	case tcell.KeyCtrlD:
+		a.move(a.pageRows() / 2)
+	case tcell.KeyCtrlU:
+		a.move(-a.pageRows() / 2)
 	case tcell.KeyHome:
 		a.moveTo(0)
 	case tcell.KeyEnd:
 		a.moveTo(1 << 30)
 	case tcell.KeyRight:
-		a.tab = (a.tab + 1) % numTabs
+		a.nextTab(1)
 	case tcell.KeyLeft:
-		a.tab = (a.tab + numTabs - 1) % numTabs
+		a.nextTab(-1)
 	case tcell.KeyTab, tcell.KeyBacktab:
 		a.focus = 1 - a.focus
 	case tcell.KeyEnter:
@@ -68,10 +93,26 @@ func (a *App) runeKey(r rune) {
 	switch r {
 	case '1', '2', '3', '4':
 		a.tab = int(r - '1')
+	case 'j':
+		a.move(1)
+	case 'k':
+		a.move(-1)
+	case 'h':
+		a.nextTab(-1)
+	case 'l':
+		a.nextTab(1)
+	case 'G':
+		a.moveTo(1 << 30)
+	case 'g', 'd', 'y':
+		a.pending = r
+	case ':':
+		a.askCommand()
 	case 'a':
 		a.askAdd("")
 	case 'A':
 		a.askAddTo()
+	case 'o':
+		a.browseAdd("")
 	case 'n':
 		a.askMake()
 	case 'p':
@@ -99,6 +140,22 @@ func (a *App) runeKey(r rune) {
 	case 'q':
 		a.quit = true
 	}
+}
+
+// chord is a two-key command.
+func (a *App) chord(first, second rune) {
+	switch string([]rune{first, second}) {
+	case "gg":
+		a.moveTo(0)
+	case "dd":
+		a.askRemove(false)
+	case "yy":
+		a.copyMagnet()
+	}
+}
+
+func (a *App) nextTab(dir int) {
+	a.tab = (a.tab + numTabs + dir) % numTabs
 }
 
 func (a *App) copyMagnet() {
@@ -137,6 +194,7 @@ func (a *App) askAdd(initial string) {
 	p := &prompt{
 		label:    promptAdd,
 		complete: completePath,
+		browse:   a.browseAdd,
 		onSubmit: func(text string) {
 			if text != "" {
 				a.Add(text)
@@ -147,33 +205,43 @@ func (a *App) askAdd(initial string) {
 	a.cmd.ask(p)
 }
 
+// browseAdd adds the .torrent file picked in the browser.
+func (a *App) browseAdd(from string) {
+	a.openBrowser(from, a.Add)
+}
+
 // askAddTo asks for the torrent, then for the folder to save it in.
 func (a *App) askAddTo() {
 	a.cmd.ask(&prompt{
 		label:    promptAdd,
 		complete: completePath,
+		browse: func(text string) {
+			a.openBrowser(text, a.askSaveIn)
+		},
 		onSubmit: func(src string) {
-			if src == "" {
+			if src != "" {
+				a.askSaveIn(src)
+			}
+		},
+	})
+}
+
+func (a *App) askSaveIn(src string) {
+	p := &prompt{
+		label:    promptSaveIn,
+		complete: completeDir,
+		onSubmit: func(dir string) {
+			name, err := a.sess.Add(src, dir)
+			if err != nil {
+				a.cmd.error("%v", err)
 				return
 			}
 
-			p := &prompt{
-				label:    promptSaveIn,
-				complete: completeDir,
-				onSubmit: func(dir string) {
-					name, err := a.sess.Add(src, dir)
-					if err != nil {
-						a.cmd.error("%v", err)
-						return
-					}
-
-					a.cmd.info(msgAdded, name)
-				},
-			}
-			p.edit.set(a.cfg.DownloadDir + "/")
-			a.cmd.ask(p)
+			a.cmd.info(msgAdded, name)
 		},
-	})
+	}
+	p.edit.set(a.cfg.DownloadDir + "/")
+	a.cmd.ask(p)
 }
 
 func (a *App) askFilter() {
@@ -332,6 +400,13 @@ var paletteCmds = []paletteCmd{
 		"A",
 		func(a *App) {
 			a.askAddTo()
+		},
+	},
+	{
+		cmdBrowse,
+		"o",
+		func(a *App) {
+			a.browseAdd("")
 		},
 	},
 	{

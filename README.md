@@ -49,8 +49,14 @@ it is private when there are trackers, and where to save the `.torrent`.
 The files are hashed in the background, and the new torrent seeds from
 where they are.
 
-Press `a` to add a torrent. The prompt completes paths with Tab. Pasting a
-magnet link anywhere opens the prompt with the link in it.
+Press `a` to add a torrent. The prompt completes paths with Tab, and
+Ctrl-O opens a file browser at the folder typed so far. Pasting a magnet
+link anywhere opens the prompt with the link in it.
+
+Press `o` to go straight to the browser. It lists folders and `.torrent`
+files, folders first, with their size, creation and modification times and
+permissions. Enter (or `l`, →) opens a folder or adds the file, `-` (or
+`h`, ←, Backspace) goes up, `I` shows hidden files, and Esc or `q` closes it.
 
 The screen has the torrent list at the top and a detail pane below it, with
 four tabs: General, Files, Peers and Trackers. Errors and questions appear
@@ -58,24 +64,29 @@ on the bottom line.
 
 | key                    | action                                     |
 | ---------------------- | ------------------------------------------ |
-| ↓ ↑ PgDn PgUp Home End | move                                       |
+| `j` `k` ↓ ↑            | move                                       |
+| `gg` `G` Home End      | first, last row                            |
+| PgDn PgUp              | a screen down, up                          |
+| Ctrl-D Ctrl-U          | half a screen down, up                     |
 | Tab Enter Esc          | move between the list and the detail pane  |
-| ← → `1`–`4`            | General, Files, Peers, Trackers tab        |
+| `h` `l` ← → `1`–`4`    | General, Files, Peers, Trackers tab        |
 | `a`                    | add a .torrent file or magnet link         |
 | `A`                    | add, choosing the folder to save in        |
+| `o`                    | browse for a .torrent file and add it      |
+| Ctrl-O                 | in the add prompt: browse for the file     |
 | `n`                    | make a torrent from a file or folder       |
 | Space `p`              | pause or resume                            |
 | Space                  | in the Files tab: download or skip the file |
 | `+` `-`                | in the Files tab: download or skip every file |
 | `r`                    | check the files on disk again              |
-| Delete                 | remove the torrent, keeping its files      |
+| `dd` Delete            | remove the torrent, keeping its files      |
 | Shift-Delete `D`       | remove the torrent and delete its files    |
-| `c`                    | copy the magnet link                       |
+| `yy` `c`               | copy the magnet link                       |
 | `/` Ctrl-F             | filter the list by name                    |
-| Ctrl-P                 | command palette: every command, by name    |
+| `:` Ctrl-P             | command palette: every command, by name    |
 | `t`                    | next theme                                 |
 | `?` F1                 | every key                                  |
-| `q` Ctrl-Q Ctrl-C      | quit; torrents resume next time            |
+| `q` Ctrl-Q Ctrl-C      | quit; torrents resume next time; Ctrl-Q works from any screen |
 
 The palette also copies the info hash or the path and picks a theme by
 name. Copying goes through the terminal (OSC 52), so it works over SSH.
